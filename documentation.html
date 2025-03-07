@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Documentation des fichiers PHP (API)</title>
+  <style>
+    :root {
+      --primary-color: #3498db;
+      --secondary-color: #2ecc71;
+      --bg-color: #f5f5f5;
+      --text-color: #333;
+      --header-bg: #34495e;
+      --header-text: #fff;
+      --code-bg: #ecf0f1;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: var(--bg-color);
+      margin: 0;
+      padding: 0;
+      color: var(--text-color);
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    header {
+      background-color: var(--header-bg);
+      color: var(--header-text);
+      padding: 20px;
+      text-align: center;
+      border-bottom: 4px solid var(--primary-color);
+    }
+    nav {
+      background-color: var(--primary-color);
+      padding: 10px;
+      margin: 20px 0;
+      border-radius: 5px;
+    }
+    nav h2 {
+      color: #fff;
+      margin: 0 0 10px 0;
+    }
+    nav ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    nav li {
+      margin-bottom: 5px;
+    }
+    nav li a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    nav li a:hover {
+      text-decoration: underline;
+    }
+    section {
+      background-color: #fff;
+      border: 2px solid var(--secondary-color);
+      border-radius: 5px;
+      margin-bottom: 20px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    section h2 {
+      color: var(--primary-color);
+      margin-top: 0;
+    }
+    section h3 {
+      color: var(--secondary-color);
+      margin-bottom: 10px;
+      margin-top: 20px;
+    }
+    section ul {
+      padding-left: 20px;
+    }
+    section li {
+      margin-bottom: 10px;
+    }
+    section li strong {
+      color: var(--secondary-color);
+    }
+    pre {
+      background-color: var(--code-bg);
+      padding: 10px;
+      border-left: 4px solid var(--secondary-color);
+      overflow-x: auto;
+      margin: 15px 0;
+      border-radius: 3px;
+    }
+    code {
+      font-family: "Courier New", Courier, monospace;
+      color: var(--text-color);
+    }
+    footer {
+      text-align: center;
+      padding: 10px;
+      background-color: var(--header-bg);
+      color: var(--header-text);
+      margin-top: 20px;
+      border-top: 2px solid var(--primary-color);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Documentation des fichiers PHP (API)</h1>
+      <p>Présentation détaillée des endpoints, méthodes, arguments et extraits de code.</p>
+    </header>
+
+    <!-- Sommaire -->
+    <nav>
+      <h2>Sommaire</h2>
+      <ul>
+        <li><a href="#users">users.php</a></li>
+        <li><a href="#orders">orders.php</a></li>
+        <li><a href="#login">login.php</a></li>
+        <li><a href="#get-token">get-token.php</a></li>
+        <li><a href="#connexion">connexion.php</a></li>
+        <li><a href="#config">config.php</a></li>
+        <li><a href="#authenticate">authenticate.php</a></li>
+        <li><a href="#admin">admin.php</a></li>
+      </ul>
+    </nav>
+
+    <!-- users.php -->
+    <section id="users">
+      <h2>users.php</h2>
+      <p>Ce fichier gère l'ensemble des opérations liées aux utilisateurs.</p>
+      
+      <h3>Méthodes</h3>
+      <ul>
+        <li><strong>GET</strong> : Récupère la liste des utilisateurs ou un utilisateur précis via <em>user_id</em></li>
+        <li><strong>POST</strong> : Crée un nouvel utilisateur</li>
+        <li><strong>PATCH</strong> : Met à jour un utilisateur existant</li>
+        <li><strong>DELETE</strong> : Supprime un utilisateur existant</li>
+      </ul>
+
+      <h3>Arguments</h3>
+      <ul>
+        <li><strong>GET (optionnel)</strong> : <code>user_id</code></li>
+        <li><strong>POST (requis)</strong> : <code>name</code>, <code>email</code>, <code>password</code></li>
+        <li><strong>PATCH (requis)</strong> : <code>user_id</code> + champs à modifier (ex : <code>name</code>, <code>email</code>)</li>
+        <li><strong>DELETE (requis)</strong> : <code>user_id</code></li>
+      </ul>
+
+      <h3>Utilité</h3>
+      <ul>
+        <li><strong>Affichage des utilisateurs :</strong> Récupère et affiche la liste des utilisateurs depuis la base de données.</li>
+        <li><strong>Gestion des données :</strong> Ajout, modification et suppression d'utilisateurs.</li>
+        <li><strong>Validation et Sécurité :</strong> Vérifie et sécurise les entrées pour prévenir toute injection malveillante.</li>
+      </ul>
+
+      <p><em>Exemple de code :</em></p>
+      <pre><code>&lt;?php
+require_once 'connexion.php';
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    // Récupération
+    if (isset($_GET['user_id'])) {
+        $userId = intval($_GET['user_id']);
+        $query = "SELECT * FROM users WHERE id = $userId";
+    } else {
+        $query = "SELECT * FROM users";
+    }
+    $result = $db-&gt;query($query);
+    // ... Affichage ou renvoi en JSON
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Création d'un nouvel utilisateur
+    $name = $_POST['name'];
+    $email = $_POST['email'];
+    $pass = password_hash($_POST['password'], PASSWORD_BCRYPT);
+    $query = "INSERT INTO users (name, email, password) VALUES ('$name', '$email', '$pass')";
+    $db-&gt;query($query);
+    // ... Redirection ou retour JSON
+}
+?&gt;
+</code></pre>
+    </section>
+
+    <!-- orders.php -->
+    <section id="orders">
+      <h2>orders.php</h2>
+      <p>Fichier dédié à la gestion des commandes des utilisateurs.</p>
+      
+      <h3>Méthodes</h3>
+      <ul>
+        <li><strong>GET</strong> : Récupère la liste des commandes ou une commande précise via <em>order_id</em></li>
+        <li><strong>POST</strong> : Crée une nouvelle commande</li>
+        <li><strong>PATCH</strong> : Met à jour le statut d’une commande</li>
+        <li><strong>DELETE</strong> : Supprime une commande existante</li>
+      </ul>
+
+      <h3>Arguments</h3>
+      <ul>
+        <li><strong>GET (optionnel)</strong> : <code>order_id</code></li>
+        <li><strong>POST (requis)</strong> : <code>user_id</code>, <code>total_price</code>, <code>items</code> (ou autres champs)</li>
+        <li><strong>PATCH (requis)</strong> : <code>order_id</code>, <code>status</code></li>
+        <li><strong>DELETE (requis)</strong> : <code>order_id</code></li>
+      </ul>
+
+      <h3>Utilité</h3>
+      <ul>
+        <li><strong>Liste des commandes :</strong> Affiche toutes les commandes passées avec les détails de chaque transaction.</li>
+        <li><strong>Suivi du statut :</strong> Permet de mettre à jour le statut d'une commande (en attente, validée, expédiée, etc.).</li>
+        <li><strong>Validation :</strong> Vérifie et sécurise les informations relatives aux commandes.</li>
+      </ul>
+
+      <p><em>Exemple de code :</em></p>
+      <pre><code>&lt;?php
+require_once 'connexion.php';
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    if (isset($_GET['order_id'])) {
+        $orderId = intval($_GET['order_id']);
+        $query = "SELECT * FROM orders WHERE id = $orderId";
+    } else {
+        $query = "SELECT * FROM orders";
+    }
+    $result = $db-&gt;query($query);
+    // ... Affichage ou renvoi en JSON
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Création d'une nouvelle commande
+    $userId = intval($_POST['user_id']);
+    $price = floatval($_POST['total_price']);
+    $items = $_POST['items']; // JSON ou tableau
+    // ... Insertion en BDD
+}
+?&gt;
+</code></pre>
+    </section>
+
+    <!-- login.php -->
+    <section id="login">
+      <h2>login.php</h2>
+      <p>Implémente la fonctionnalité de connexion pour les utilisateurs.</p>
+
+      <h3>Méthodes</h3>
+      <ul>
+        <li><strong>POST</strong> : Vérifie les identifiants de l'utilisateur et démarre une session</li>
+      </ul>
+
+      <h3>Arguments</h3>
+      <ul>
+        <li><strong>POST (requis)</strong> : <code>username</code>, <code>password</code></li>
+      </ul>
+
+      <h3>Utilité</h3>
+      <ul>
+        <li><strong>Interface de connexion :</strong> Affiche un formulaire pour saisir le nom d'utilisateur et le mot de passe.</li>
+        <li><strong>Authentification :</strong> Vérifie la validité des identifiants et démarre une session en cas de succès.</li>
+        <li><strong>Gestion des erreurs :</strong> Affiche des messages d'erreur en cas d'échec de connexion.</li>
+      </ul>
+
+      <p><em>Exemple de code :</em></p>
+      <pre><code>&lt;?php
+session_start();
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+    // Vérification des identifiants en BDD...
+    if ($username === 'admin' &amp;&amp; $password === 'secret') {
+        $_SESSION['user'] = $username;
+        header("Location: dashboard.php");
+        exit;
+    } else {
+        echo "&lt;p&gt;Identifiants incorrects&lt;/p&gt;";
+    }
+}
+?&gt;
+</code></pre>
+    </section>
+
+    <!-- get-token.php -->
+    <section id="get-token">
+      <h2>get-token.php</h2>
+      <p>Gère la création et la validation des tokens d'authentification.</p>
+
+      <h3>Méthodes</h3>
+      <ul>
+        <li><strong>GET</strong> : Génère et renvoie un token</li>
+      </ul>
+
+      <h3>Arguments</h3>
+      <ul>
+        <li><strong>GET (optionnel)</strong> : Aucun paramètre particulier requis, ou éventuellement un <code>refresh_token</code> si la logique l’exige</li>
+      </ul>
+
+      <h3>Utilité</h3>
+      <ul>
+        <li><strong>Génération sécurisée :</strong> Crée un token unique à l'aide d'algorithmes de chiffrement.</li>
+        <li><strong>Validation :</strong> Vérifie l'authenticité du token pour sécuriser l'accès aux ressources.</li>
+        <li><strong>Expiration :</strong> Définit une durée de validité pour le token et gère son renouvellement.</li>
+      </ul>
+
+      <p><em>Exemple de code :</em></p>
+      <pre><code>&lt;?php
+function generateToken($length = 32) {
+    return bin2hex(random_bytes($length));
+}
+header('Content-Type: application/json');
+echo json_encode(['token' =&gt; generateToken()]);
+?&gt;
+</code></pre>
+    </section>
+
+    <!-- connexion.php -->
+    <section id="connexion">
+      <h2>connexion.php</h2>
+      <p>Établit la connexion avec la base de données. (Ne sert pas directement d’endpoint API.)</p>
+
+      <h3>Méthodes</h3>
+      <p>Aucune – ce fichier n’est pas appelé directement via une requête HTTP. Il est inclus par les autres fichiers pour gérer la connexion.</p>
+
+      <h3>Arguments</h3>
+      <p>Aucun – les paramètres de connexion sont définis dans <code>config.php</code> ou dans des constantes.</p>
+
+      <h3>Utilité</h3>
+      <ul>
+        <li><strong>Configuration :</strong> Utilise les paramètres définis pour se connecter à la base (hôte, utilisateur, mot de passe, etc.).</li>
+        <li><strong>Ouverture de connexion :</strong> Initialise la connexion et gère les erreurs de connexion.</li>
+      </ul>
+
+      <p><em>Exemple de code :</em></p>
+      <pre><code>&lt;?php
+require_once 'config.php';
+
+$db = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+if ($db-&gt;connect_error) {
+    die("Connection failed: " . $db-&gt;connect_error);
+}
+?&gt;
+</code></pre>
+    </section>
+
+    <!-- config.php -->
+    <section id="config">
+      <h2>config.php</h2>
+      <p>Contient les paramètres globaux et les constantes de l'application. (Ne sert pas directement d’endpoint API.)</p>
+
+      <h3>Méthodes</h3>
+      <p>Aucune – ce fichier n’est pas appelé directement via une requête HTTP. Il est inclus par les autres fichiers pour la configuration.</p>
+
+      <h3>Arguments</h3>
+      <p>Aucun – les constantes et variables sont simplement définies ici.</p>
+
+      <h3>Utilité</h3>
+      <ul>
+        <li><strong>Définition des constantes :</strong> Stocke les clés, chemins et autres variables essentielles.</li>
+        <li><strong>Paramètres de connexion :</strong> Enregistre les informations de connexion à la base de données.</li>
+        <li><strong>Centralisation :</strong> Facilite la maintenance et les modifications futures.</li>
+      </ul>
+
+      <p><em>Exemple de code :</em></p>
+      <pre><code>&lt;?php
+define('DB_HOST', 'localhost');
+define('DB_USER', 'root');
+define('DB_PASS', '');
+define('DB_NAME', 'my_database');
+?&gt;
+</code></pre>
+    </section>
+
+    <!-- authenticate.php -->
+    <section id="authenticate">
+      <h2>authenticate.php</h2>
+      <p>Responsable de l'authentification des utilisateurs. (Peut servir d’endpoint ou être inclus par d’autres fichiers.)</p>
+
+      <h3>Méthodes</h3>
+      <ul>
+        <li><strong>POST</strong> : Vérifie les identifiants et génère une session ou un token</li>
+      </ul>
+
+      <h3>Arguments</h3>
+      <ul>
+        <li><strong>POST (requis)</strong> : <code>username</code>, <code>password</code></li>
+      </ul>
+
+      <h3>Utilité</h3>
+      <ul>
+        <li><strong>Vérification des identifiants :</strong> Compare les informations saisies avec celles stockées en base.</li>
+        <li><strong>Initialisation de session :</strong> Démarre une session pour l'utilisateur authentifié.</li>
+        <li><strong>Redirection :</strong> Oriente l'utilisateur vers la page appropriée en cas de succès ou d'erreur.</li>
+      </ul>
+
+      <p><em>Exemple de code :</em></p>
+      <pre><code>&lt;?php
+session_start();
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (authenticate($_POST['username'], $_POST['password'])) {
+        $_SESSION['user'] = $_POST['username'];
+        header("Location: dashboard.php");
+        exit;
+    } else {
+        echo "&lt;p&gt;Identifiants invalides&lt;/p&gt;";
+    }
+}
+?&gt;
+</code></pre>
+    </section>
+
+    <!-- admin.php -->
+    <section id="admin">
+      <h2>admin.php</h2>
+      <p>Interface dédiée aux fonctionnalités administratives de l'application.</p>
+
+      <h3>Méthodes</h3>
+      <ul>
+        <li><strong>GET</strong> : Affiche le tableau de bord ou certaines ressources d’administration</li>
+        <li><strong>POST</strong> : Permet d’exécuter des actions administratives (création/modification de données sensibles)</li>
+      </ul>
+
+      <h3>Arguments</h3>
+      <ul>
+        <li><strong>GET (optionnel)</strong> : Dépend de la fonctionnalité (ex. <code>action</code>, <code>admin_id</code>, etc.)</li>
+        <li><strong>POST (requis)</strong> : Selon l’action administrative (ex. <code>user_id</code>, <code>order_id</code>, etc.)</li>
+      </ul>
+
+      <h3>Utilité</h3>
+      <ul>
+        <li><strong>Tableau de bord :</strong> Affiche une vue synthétique des données critiques (utilisateurs, commandes, etc.).</li>
+        <li><strong>Gestion des privilèges :</strong> Limite l'accès aux sections sensibles aux administrateurs.</li>
+        <li><strong>Outils de gestion :</strong> Propose des fonctionnalités de configuration et de surveillance du système.</li>
+      </ul>
+
+      <p><em>Exemple de code :</em></p>
+      <pre><code>&lt;?php
+session_start();
+if (!isset($_SESSION['admin'])) {
+    header("Location: login.php");
+    exit;
+}
+// Exemple d'action admin
+if ($_SERVER['REQUEST_METHOD'] === 'POST' &amp;&amp; isset($_POST['action'])) {
+    if ($_POST['action'] === 'delete_user') {
+        $userId = intval($_POST['user_id']);
+        // ... Suppression en BDD
+    }
+}
+echo "&lt;h2&gt;Bienvenue dans l'espace admin&lt;/h2&gt;";
+?&gt;
+</code></pre>
+    </section>
+
+  </div>
+</body>
+</html>
